@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ro">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0"
+    />
+    <title>Joc Asteroids - 5_1091_MAZALU_Mara</title>
+
+    <link rel="stylesheet" type="text/css" href="5_1091_MAZALU_Mara.css" />
+  </head>
+  <body>
+    <canvas id="gameCanvas">
+      Browser-ul tău nu suportă elementul HTML5 canvas.
+    </canvas>
+
+    <!-- HUD -->
+    <div id="hud">
+      <div id="hud-score">Scor: 0</div>
+      <div id="hud-lives">Vieți: ❤❤❤</div>
+      <div id="hud-level">Nivel: 1</div>
+    </div>
+
+    <!-- Game Over + Highscore -->
+    <div id="game-over-overlay" class="overlay hidden">
+      <div class="overlay-content">
+        <h2>Game Over</h2>
+        <p id="final-score-text">Scor final: 0</p>
+
+        <div id="highscore-input-section">
+          <label>
+            Nume jucător:
+            <input
+              type="text"
+              id="player-name-input"
+              maxlength="20"
+              placeholder="Introdu numele"
+            />
+          </label>
+          <button id="save-score-btn">Salvează scor</button>
+        </div>
+
+        <h3>Top 5 scoruri</h3>
+        <ol id="highscore-list"></ol>
+
+        <button id="restart-btn">Joacă din nou</button>
+      </div>
+    </div>
+
+    <noscript> JavaScript este necesar pentru rularea acestui joc. </noscript>
+
+    <script type="module" src="5_1091_MAZALU_Mara.js"></script>
+  </body>
+</html>
