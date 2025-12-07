@@ -64,6 +64,17 @@ canvas {
   }
 }
 
+/* Titlu mai mare pentru ecranul de start */
+#start-overlay .overlay-content h1 {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+#start-overlay .overlay-content p {
+  margin-bottom: 14px;
+  font-size: 14px;
+  line-height: 1.4;
+}
 
 /* Overlay Game Over */
 .overlay {
@@ -121,7 +132,7 @@ canvas {
   border-radius: 4px;
   border: none;
   cursor: pointer;
-  background: #2563eb;
+  background: #FF4500;
   color: #ffffff;
   font-size: 14px;
 }

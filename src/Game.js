@@ -31,9 +31,24 @@ function isNewHighscore(score) {
 
 function addHighscore(name, score) {
   const scores = loadHighscores();
-  scores.push({ name, score });
+
+  // căutăm dacă există deja cineva cu același nume
+  const existingIndex = scores.findIndex((entry) => entry.name === name);
+
+  if (existingIndex !== -1) {
+    // jucătorul există deja: păstrăm scorul mai mare dintre vechi și nou
+    if (score > scores[existingIndex].score) {
+      scores[existingIndex].score = score;
+    }
+  } else {
+    // jucător nou: îl adăugăm
+    scores.push({ name, score });
+  }
+
+  // sortăm descrescător după scor și păstrăm doar top 5
   scores.sort((a, b) => b.score - a.score);
   const top5 = scores.slice(0, 5);
+
   saveHighscores(top5);
   return top5;
 }
@@ -86,6 +101,10 @@ export class Game {
   #restartBtn;
   #saveScoreBtn;
 
+  #startOverlay;
+  #startBtn;
+  #isStarted = false;
+
   constructor() {
     this.#canvas = document.getElementById("gameCanvas");
     this.#context = this.#canvas.getContext("2d");
@@ -94,31 +113,37 @@ export class Game {
     this.#setupEvents();
 
     this.resize();
-    this.initGame();
 
+    // NU mai pornim jocul direct, doar loop-ul de randare
     this.#lastFrameTime = performance.now();
     requestAnimationFrame((ts) => this.gameLoop(ts));
   }
 
   // ---------- setup DOM + events ----------
 
-  #setupDOM() {
-    this.#hudScore = document.getElementById("hud-score");
-    this.#hudLives = document.getElementById("hud-lives");
-    this.#hudLevel = document.getElementById("hud-level");
+    #setupDOM() {
+      // HUD
+      this.#hudScore = document.getElementById("hud-score");
+      this.#hudLives = document.getElementById("hud-lives");
+      this.#hudLevel = document.getElementById("hud-level");
 
-    this.#overlay = document.getElementById("game-over-overlay");
-    this.#finalScoreText = document.getElementById("final-score-text");
-    this.#highscoreInputSection = document.getElementById(
-      "highscore-input-section"
-    );
-    this.#playerNameInput = document.getElementById("player-name-input");
-    this.#highscoreList = document.getElementById("highscore-list");
-    this.#restartBtn = document.getElementById("restart-btn");
-    this.#saveScoreBtn = document.getElementById("save-score-btn");
+      // Game Over overlay
+      this.#overlay = document.getElementById("game-over-overlay");
+      this.#finalScoreText = document.getElementById("final-score-text");
+      this.#highscoreInputSection = document.getElementById(
+        "highscore-input-section"
+      );
+      this.#playerNameInput = document.getElementById("player-name-input");
+      this.#highscoreList = document.getElementById("highscore-list");
+      this.#restartBtn = document.getElementById("restart-btn");
+      this.#saveScoreBtn = document.getElementById("save-score-btn");
 
-    this.updateHUD();
-    this.updateHighscoreList();
+      // Start overlay
+      this.#startOverlay = document.getElementById("start-overlay");
+      this.#startBtn = document.getElementById("start-btn");
+
+      this.updateHUD();
+      this.updateHighscoreList();
   }
 
   #setupEvents() {
@@ -145,6 +170,10 @@ export class Game {
     if (this.#saveScoreBtn) {
       this.#saveScoreBtn.addEventListener("click", () => this.onSaveScore());
     }
+    if (this.#startBtn) {
+      this.#startBtn.addEventListener("click", () => this.startGame());
+    }
+
   }
 
   resize() {
@@ -169,6 +198,22 @@ export class Game {
 
     this.spawnAsteroids(5);
     this.updateHUD();
+  }
+
+  startGame() {
+    // ascundem overlay-ul de start
+    if (this.#startOverlay) {
+      this.#startOverlay.classList.add("hidden");
+    }
+
+    // marcăm că jocul a început
+    this.#isStarted = true;
+
+    // inițializăm starea jocului
+    this.initGame();
+
+    // resetăm timpul pentru loop
+    this.#lastFrameTime = performance.now();
   }
 
   spawnAsteroids(count) {
@@ -289,19 +334,35 @@ export class Game {
   // ---------- logică joc ----------
 
   updateGameState(dt) {
-    const shipSpeed = 200;
+    const thrust = 300; // accelerația când ții apăsat SUS / JOS
 
-    // navă
-    if (this.keys.ArrowUp) this.#ship.y -= shipSpeed * dt;
-    if (this.keys.ArrowDown) this.#ship.y += shipSpeed * dt;
-    if (this.keys.ArrowLeft) this.#ship.x -= shipSpeed * dt;
-    if (this.keys.ArrowRight) this.#ship.x += shipSpeed * dt;
+    // implicit: nu accelerează
+    this.#ship.isThrusting = false;
 
-    this.#ship.x = Math.max(0, Math.min(this.#canvas.width, this.#ship.x));
-    this.#ship.y = Math.max(0, Math.min(this.#canvas.height, this.#ship.y));
+    // 1) rotație (ca înainte)
+    if (this.keys.ArrowLeft) {
+      this.#ship.rotateLeft(dt);
+    }
+    if (this.keys.ArrowRight) {
+      this.#ship.rotateRight(dt);
+    }
 
-    if (this.keys.z) this.#ship.rotateLeft(dt);
-    if (this.keys.c) this.#ship.rotateRight(dt);
+    // 2) thrust + inerție
+    if (this.keys.ArrowUp) {
+      this.#ship.vx += Math.cos(this.#ship.angle) * thrust * dt;
+      this.#ship.vy += Math.sin(this.#ship.angle) * thrust * dt;
+
+      this.#ship.isThrusting = true; // 🔥 arată flacăra
+    }
+
+    // opțional: thrust invers cu săgeata jos
+    if (this.keys.ArrowDown) {
+      this.#ship.vx -= Math.cos(this.#ship.angle) * thrust * dt * 0.5;
+      this.#ship.vy -= Math.sin(this.#ship.angle) * thrust * dt * 0.5;
+    }
+
+    // 3) aplicăm inerția + fricțiunea (nava se deplasează din vx / vy)
+    this.#ship.update(dt, this.#canvas.width, this.#canvas.height);
 
     // rachete
     this.#bullets.forEach((b) => {
@@ -448,6 +509,10 @@ export class Game {
   resetShipPosition() {
     this.#ship.x = this.#canvas.width / 2;
     this.#ship.y = this.#canvas.height / 2;
+
+    // resetăm și viteza când reapare nava
+    this.#ship.vx = 0;
+    this.#ship.vy = 0;
   }
 
   // ---------- Game Over + highscore ----------
@@ -515,12 +580,21 @@ export class Game {
     if (dt > 250) dt = 250;
     this.#accumulator += dt;
 
-    while (this.#accumulator >= this.#fixedTimeStep) {
-      this.updateGameState(this.#fixedTimeStep / 1000);
-      this.#accumulator -= this.#fixedTimeStep;
+    if (this.#isStarted) {
+      // jocul a început: rulăm logica normală
+      while (this.#accumulator >= this.#fixedTimeStep) {
+        this.updateGameState(this.#fixedTimeStep / 1000);
+        this.#accumulator -= this.#fixedTimeStep;
+      }
+
+      this.draw();
+    } else {
+      // încă nu am dat Start: doar curățăm ecranul
+      const ctx = this.#context;
+      ctx.fillStyle = "black";
+      ctx.fillRect(0, 0, this.#canvas.width, this.#canvas.height);
     }
 
-    this.draw();
     requestAnimationFrame((t) => this.gameLoop(t));
   }
 }
