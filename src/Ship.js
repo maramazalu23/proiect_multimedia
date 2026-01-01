@@ -12,13 +12,13 @@ export class Ship {
     this.y = y;
     this.angle = -Math.PI / 2; // Orientată în sus inițial (90 grade)
     this.size = 20;
-    this.color = "#FFFFFF"; // Alb, clasic pentru Asteroids
+    this.color = "#FFFFFF";
 
     // viteze inițiale pentru inerție
     this.vx = 0;
     this.vy = 0;
 
-    // nou: marcăm dacă accelerează
+    // marcăm dacă accelerează
     this.isThrusting = false;
   }
 
@@ -43,26 +43,25 @@ export class Ship {
 
     // ==== FOC DE REACȚIE când accelerează ====
     if (this.isThrusting) {
-      const baseX = -this.size / 2; // baza triunghiului, în spate
+      const baseX = -this.size / 2;
       const flameLength =
-        this.size * (1 + Math.random() * 0.4); // ușor random, „flicker”
+        this.size * (1 + Math.random() * 0.4); 
 
       ctx.beginPath();
-      ctx.moveTo(baseX, 0);                     // centru spate
-      ctx.lineTo(baseX - flameLength, 6);       // jos
-      ctx.lineTo(baseX - flameLength, -6);      // sus
+      ctx.moveTo(baseX, 0);
+      ctx.lineTo(baseX - flameLength, 6);
+      ctx.lineTo(baseX - flameLength, -6);
       ctx.closePath();
 
-      ctx.fillStyle = "#FFA500"; // portocaliu
+      ctx.fillStyle = "#FFA500";
       ctx.fill();
 
-      // un mic „nucleu” roșu în mijloc, opțional
       ctx.beginPath();
       ctx.moveTo(baseX, 0);
       ctx.lineTo(baseX - flameLength * 0.6, 4);
       ctx.lineTo(baseX - flameLength * 0.6, -4);
       ctx.closePath();
-      ctx.fillStyle = "#FF4500"; // roșu-oranj
+      ctx.fillStyle = "#FF4500";
       ctx.fill();
     }
 
@@ -71,7 +70,7 @@ export class Ship {
 
   // === rotație 360° ===
   rotateLeft(dt) {
-    const ROT_SPEED = 2.2; // radiani / secundă
+    const ROT_SPEED = 2.2;
     this.angle -= ROT_SPEED * dt;
     this.normalizeAngle();
   }
@@ -87,18 +86,18 @@ export class Ship {
     this.angle = (this.angle % twoPi + twoPi) % twoPi;
   }
 
-  // update cu inerție + fricțiune
+  // inerție + fricțiune
   update(dt, canvasWidth, canvasHeight) {
     // deplasare din viteză
     this.x += this.vx * dt;
     this.y += this.vy * dt;
 
-    // fricțiune (inertia scade încet)
+    // fricțiune
     const friction = 0.99;
     this.vx *= friction;
     this.vy *= friction;
 
-    // păstrăm nava în ecran (clamp simplu)
+    // păstrăm nava în ecran
     if (this.x < 0) this.x = 0;
     if (this.x > canvasWidth) this.x = canvasWidth;
     if (this.y < 0) this.y = 0;

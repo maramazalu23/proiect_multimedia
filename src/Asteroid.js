@@ -3,11 +3,10 @@ export class Asteroid {
   y;
   dx;
   dy;
-  lives;   // 1–4 vieți
-  radius;  // „raza” de coliziune
+  lives;
+  radius;
   color;
 
-  // puncte pentru forma neregulată: [{ angle, mult }, ...]
   shapePoints = [];
 
   constructor(x, y) {
@@ -47,7 +46,7 @@ export class Asteroid {
 
     for (let i = 0; i < segments; i++) {
       const angle = (i / segments) * Math.PI * 2;
-      // factor între 0.6 și 1.0 ca să fie colțuri neregulate
+      // factor între 0.6 și 1.0 pentru colțuri neregulate
       const mult = 0.6 + Math.random() * 0.4;
       this.shapePoints.push({ angle, mult });
     }

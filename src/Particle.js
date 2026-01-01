@@ -5,7 +5,7 @@ export class Particle {
   dy;
   size;
   color;
-  life;     // Cât timp trăiește particula (similar cu durata din timeline)
+  life;
   maxLife;
 
   constructor(x, y, color) {
@@ -14,7 +14,7 @@ export class Particle {
     this.color = color;
     this.size = Math.random() * 3 + 1; // Mărime aleatoare 1-4px
     
-    // Viteză explozivă aleatoare (concept din animation-2.js)
+    // Viteză explozivă aleatoare
     const speed = Math.random() * 100 + 50;
     const angle = Math.random() * Math.PI * 2;
     this.dx = Math.cos(angle) * speed;

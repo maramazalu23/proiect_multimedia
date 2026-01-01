@@ -114,7 +114,6 @@ export class Game {
 
     this.resize();
 
-    // NU mai pornim jocul direct, doar loop-ul de randare
     this.#lastFrameTime = performance.now();
     requestAnimationFrame((ts) => this.gameLoop(ts));
   }
@@ -352,7 +351,7 @@ export class Game {
       this.#ship.vx += Math.cos(this.#ship.angle) * thrust * dt;
       this.#ship.vy += Math.sin(this.#ship.angle) * thrust * dt;
 
-      this.#ship.isThrusting = true; // 🔥 arată flacăra
+      this.#ship.isThrusting = true;
     }
 
     // opțional: thrust invers cu săgeata jos
@@ -419,10 +418,9 @@ export class Game {
   }
 
   createShipExplosion(x, y) {
-    const particleCount = 35; // modifică 35 → 50 pentru super-explozie
+    const particleCount = 35;
 
     for (let i = 0; i < particleCount; i++) {
-    // culoarea poate fi albă sau roșu-gălbuie ca o explozie
     const colors = ["#ffffff", "#ffdd55", "#ffaa33", "#ff4444"];
     const color = colors[Math.floor(Math.random() * colors.length)];
 

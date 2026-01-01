@@ -20,7 +20,7 @@ export class Bullet {
   draw(ctx) {
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    ctx.fillStyle = "#FFFF00"; // Galben
+    ctx.fillStyle = "#FFFF00";
     ctx.fill();
     ctx.closePath();
   }

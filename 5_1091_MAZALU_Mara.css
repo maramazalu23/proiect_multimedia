@@ -44,14 +44,13 @@ canvas {
   line-height: 1.3;
 }
 
-/* Inimioare puțin mai mari */
 #hud-lives {
   font-size: 20px;
 }
 
 /* Warning când jucătorul este la ultima viață */
 #hud-lives.warning {
-  color: #f97373; /* roșu deschis */
+  color: #f97373;
   animation: livesWarning 0.6s ease-in-out infinite alternate;
 }
 
